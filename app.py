@@ -1,30 +1,102 @@
 import os
 from flask import Flask, request
+from lib.database_connection import get_flask_database_connection
+from lib.drill_repository import DrillRepository
+from lib.drill import Drill
 
 # Create a new Flask app
 app = Flask(__name__)
 
-# == Your Routes Here ==
 
-# == Example Code Below ==
-
-# GET /emoji
-# Returns a emojiy face
-# Try it:
-#   ; curl http://127.0.0.1:5001/emoji
 @app.route('/emoji', methods=['GET'])
 def get_emoji():
     return ":)"
 
-# This imports some more example routes for you to see how they work
-# You can delete these lines if you don't need them.
-from example_routes import apply_example_routes
-apply_example_routes(app)
 
-# == End Example Code ==
 
-# These lines start the server if you run this file directly
-# They also start the server configured to use the test database
+@app.route('/drills', methods=['GET'])
+def get_drills():
+    connection = get_flask_database_connection(app)
+    repository = DrillRepository(connection)
+    return "\n".join([
+        str(drill) for drill in repository.all()
+    ])
+
+@app.route('/drills/<int:drill_id>', methods=['GET'])
+def get_drill_by_id(drill_id):
+    connection = get_flask_database_connection(app)
+    repository = DrillRepository(connection)
+    drill = repository.find(drill_id)
+    
+    if drill:
+        return str(drill)
+    return "Drill not found", 404
+
+@app.route('/drills', methods=['POST'])
+def create_drill():
+    connection = get_flask_database_connection(app)
+    repository = DrillRepository(connection)
+    
+    data = request.form
+
+    new_drill = Drill(
+        id=None,  
+        drill_name=data['drill_name'],
+        instructions=data['instructions'],
+        drill_type=data['drill_type'],
+        time_per_shot=data.get('time_per_shot', None),
+        drill_goal=data.get('drill_goal', None),
+        scoring_system=data.get('scoring_system', None),
+        drill_media=data.get('drill_media', None),
+        equipment=data.get('equipment', []),
+        measure_success=data.get('measure_success', None),
+        tags=data.get('tags', [])
+    )
+
+    repository.create(new_drill)
+    return "Drill created successfully", 201
+
+
+@app.route('/drills/<int:drill_id>', methods=['PUT'])
+def update_drill(drill_id):
+    connection = get_flask_database_connection(app)
+    repository = DrillRepository(connection)
+    
+    data = request.form
+    existing_drill = repository.find(drill_id)
+
+    if not existing_drill:
+        return "Drill not found", 404
+
+    updated_drill = Drill(
+        id=drill_id,
+        drill_name=data.get('drill_name', existing_drill.drill_name),
+        instructions=data.get('instructions', existing_drill.instructions),
+        drill_type=data.get('drill_type', existing_drill.drill_type),
+        time_per_shot=data.get('time_per_shot', existing_drill.time_per_shot),
+        drill_goal=data.get('drill_goal', existing_drill.drill_goal),
+        scoring_system=data.get('scoring_system', existing_drill.scoring_system),
+        drill_media=data.get('drill_media', existing_drill.drill_media),
+        equipment=data.get('equipment', existing_drill.equipment),
+        measure_success=data.get('measure_success', existing_drill.measure_success),
+        tags=data.get('tags', existing_drill.tags)
+    )
+
+    repository.update(updated_drill)
+    return "Drill updated successfully", 200
+
+@app.route('/drills/<int:drill_id>', methods=['DELETE'])
+def delete_drill(drill_id):
+    connection = get_flask_database_connection(app)
+    repository = DrillRepository(connection)
+    
+    if not repository.find(drill_id):
+        return "Drill not found", 404
+
+    repository.delete(drill_id)
+    return "Drill deleted successfully"
+
+
 # if started in test mode.
 if __name__ == '__main__':
     app.run(debug=True, port=int(os.environ.get('PORT', 5001)))
