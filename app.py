@@ -37,7 +37,17 @@ def create_drill():
     connection = get_flask_database_connection(app)
     repository = DrillRepository(connection)
     
-    data = request.form
+    # Get JSON data
+    data = request.get_json()
+
+    # Convert 'equipment' and 'tags' to array format if not already
+    equipment = data.get('equipment', [])
+    if isinstance(equipment, str):  # If it's a single string, wrap it in a list
+        equipment = [equipment]
+    
+    tags = data.get('tags', [])
+    if isinstance(tags, str):  # If it's a single string, wrap it in a list
+        tags = [tags]
 
     new_drill = Drill(
         id=None,  
@@ -48,9 +58,9 @@ def create_drill():
         drill_goal=data.get('drill_goal', None),
         scoring_system=data.get('scoring_system', None),
         drill_media=data.get('drill_media', None),
-        equipment=data.get('equipment', []),
+        equipment=equipment,
         measure_success=data.get('measure_success', None),
-        tags=data.get('tags', [])
+        tags=tags
     )
 
     repository.create(new_drill)

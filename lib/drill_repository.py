@@ -25,7 +25,7 @@ class DrillRepository:
     # Create a new drill
     # Do you want to get its id back? Look into RETURNING id;
     def create(self, drill):
-        self._connection.execute('INSERT INTO drills (drill_name, instructions, drill_type, time_per_shot, drill_goal, scoring_system, drill_media, equipment, measure_success, tags) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,)', [
+        self._connection.execute('INSERT INTO drills (drill_name, instructions, drill_type, time_per_shot, drill_goal, scoring_system, drill_media, equipment, measure_success, tags) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', [
                                  drill.drill_name, drill.instructions, drill.drill_type, drill.time_per_shot, drill.drill_goal, drill.scoring_system, drill.drill_media, drill.equipment, drill.measure_success, drill.tags])
         return None
 
