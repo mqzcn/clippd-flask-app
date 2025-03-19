@@ -29,6 +29,35 @@ class DrillRepository:
                                  drill.drill_name, drill.instructions, drill.drill_type, drill.time_per_shot, drill.drill_goal, drill.scoring_system, drill.drill_media, drill.equipment, drill.measure_success, drill.tags])
         return None
 
+    # Update a drill by its id
+    def update(self, drill):
+        self._connection.execute("""
+            UPDATE drills
+            SET drill_name = %s, 
+                instructions = %s, 
+                drill_type = %s, 
+                time_per_shot = %s, 
+                drill_goal = %s, 
+                scoring_system = %s, 
+                drill_media = %s, 
+                equipment = %s, 
+                measure_success = %s, 
+                tags = %s
+            WHERE id = %s
+        """, [
+            drill.drill_name,
+            drill.instructions,
+            drill.drill_type,
+            drill.time_per_shot,
+            drill.drill_goal,
+            drill.scoring_system,
+            drill.drill_media,
+            drill.equipment,  
+            drill.measure_success,
+            drill.tags,  
+            drill.id
+        ])
+
     # Delete a drill by its id
     def delete(self, drill_id):
         self._connection.execute(
