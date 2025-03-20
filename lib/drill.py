@@ -1,6 +1,6 @@
 class Drill:
     def __init__(self, id, drill_type, tags=[], clubs=[], drill_name='', instructions='', estimated_time='',
-                 goal='', drill_media=None, measure_success='', score_system='', custom_scoring='',
+                 goal='', drill_media='', measure_success='', score_system='', custom_scoring='',
                  total_possible_points='', custom_distance='', randomized=False, easy_percent='',
                  medium_percent='', hard_percent='', expert_percent=''):
         self.id = id

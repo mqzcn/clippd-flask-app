@@ -3,11 +3,13 @@ from flask import Flask, request, jsonify
 from lib.database_connection import get_flask_database_connection
 from lib.drill_repository import DrillRepository
 from lib.drill import Drill
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-
+CORS(app, origins=["*"])
 
 @app.route('/', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def get_welcome_message():
     return "Welcome to the Practice Drills API"
 
@@ -32,6 +34,7 @@ def get_drill_by_id(drill_id):
     return jsonify({"error": "Drill not found"}), 404
 
 @app.route('/drills', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def create_drill():
     connection = get_flask_database_connection(app)
     repository = DrillRepository(connection)
