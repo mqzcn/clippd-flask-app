@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 from lib.database_connection import get_flask_database_connection
 from lib.drill_repository import DrillRepository
 from lib.drill import Drill
@@ -9,7 +9,6 @@ app = Flask(__name__)
 CORS(app, origins=["*"])
 
 @app.route('/', methods=['GET'])
-@cross_origin(supports_credentials=True)
 def get_welcome_message():
     return "Welcome to the Practice Drills API"
 
@@ -33,8 +32,8 @@ def get_drill_by_id(drill_id):
     
     return jsonify({"error": "Drill not found"}), 404
 
+
 @app.route('/drills', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def create_drill():
     connection = get_flask_database_connection(app)
     repository = DrillRepository(connection)
@@ -44,8 +43,8 @@ def create_drill():
     new_drill = Drill(
         id=None,
         drill_type=data.get('drill_type', ''),
-        tags=data.get('tags', []),
-        clubs=data.get('clubs', []),
+        tags="{" + ",".join(data.get('tags', [])) + "}",
+        clubs="{" + ",".join(data.get('clubs', [])) + "}",
         drill_name=data.get('drill_name', ''),
         instructions=data.get('instructions', ''),
         estimated_time=data.get('estimated_time', 0),
@@ -54,8 +53,8 @@ def create_drill():
         measure_success=data.get('measure_success', ''),
         score_system=data.get('score_system', ''),
         custom_scoring=data.get('custom_scoring', ''),
-        total_possible_points=data.get('total_possible_points', ''),
-        custom_distance=data.get('custom_distance', ''),
+        total_possible_points=data.get('total_possible_points', 0),
+        custom_distance=data.get('custom_distance', 0),
         randomized=data.get('randomized', False),
         easy_percent=data.get('easy_percent', ''),
         medium_percent=data.get('medium_percent', ''),
